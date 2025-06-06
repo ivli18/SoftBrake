@@ -4,6 +4,7 @@ class Load extends Phaser.Scene {
     }
 
     preload() {
+        this.sound.mute = true;
         this.load.setPath("./assets/");
 
         // Load characters spritesheet
