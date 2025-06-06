@@ -21,6 +21,8 @@ class Platformer extends Phaser.Scene {
     }
 
     create() {
+        this.sound.mute = true;
+
         this.startTime = this.time.now;
         this.bgSound = this.sound.add('bg', {
             // TEMP
