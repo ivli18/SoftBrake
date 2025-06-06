@@ -6,7 +6,7 @@ class Platformer extends Phaser.Scene {
     init() {
         // Variables and settings
         this.ACCELERATION = 600;
-        this.DRAG = 1500;
+        this.DRAG = 1700;
         this.physics.world.gravity.y = 1500;
         this.JUMP_VELOCITY = -420;
         this.PARTICLE_VELOCITY = 50;
@@ -143,7 +143,7 @@ class Platformer extends Phaser.Scene {
         // COIN COLLISION
         this.physics.add.overlap(my.sprite.player, this.coinGroup, (obj1, obj2) => {
             obj2.destroy(); // remove coin on overlap
-            this.score += 100;
+            this.score += 50;
             this.sound.play('coin', { volume: 0.3 });
         });
         
@@ -171,7 +171,7 @@ class Platformer extends Phaser.Scene {
             obj2.destroy();
             this.score += 2500;
             this.sound.play('battery', { volume: 0.3 });
-            this.minVis += 0.15;
+            this.minVis += 0.2;
             this.maxVis += 0.25;
             this.spotlight.setScale(this.maxVis);
             this.batteries += 1;
