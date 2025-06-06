@@ -4,7 +4,7 @@ class Load extends Phaser.Scene {
     }
 
     preload() {
-        this.sound.mute = true;
+        //this.sound.mute = true;
         this.load.setPath("./assets/");
 
         // Load characters spritesheet
@@ -13,10 +13,12 @@ class Load extends Phaser.Scene {
         // Load tilemap information
         this.load.image("tilemap_tiles", "tilemap_packed.png");
         this.load.image("pixel_tiles", "pixel_packed.png"); 
-        this.load.tilemapTiledJSON("platformer-level-1", "platformer-level-1.tmj", "platformer-level-1.tmx");   // Tilemap in JSON
+        this.load.tilemapTiledJSON("platformer-level-1", "platformer-level-1.tmj", "platformer-level-1.tmx");
 
         this.load.image('spotlight', 'spotlight.png');
         this.load.image("battery", "batteryAsset.png");
+        this.load.image("soundOn", "soundOn.png");
+        this.load.image("soundOff", "soundOff.png");
 
         // Load the tilemap as a spritesheet
         this.load.spritesheet("tilemap_sheet", "tilemap_packed.png", {
@@ -28,18 +30,23 @@ class Load extends Phaser.Scene {
             frameHeight: 18
         });
 
-        this.load.audio('jump', 'jump.ogg');
-        this.load.audio('drown', 'drown.ogg');
-        this.load.audio('coin', 'coin.ogg'); 
-        this.load.audio('bg', 'bg.ogg'); 
+        this.load.audio('jump', 'sound/jump.mp3');
+        this.load.audio('hurt', 'sound/hurt.mp3');
+        this.load.audio('coin', 'sound/coin.mp3'); 
+        this.load.audio('bg', 'sound/bg.mp3');
+        this.load.audio('land', 'sound/land.mp3') 
+        this.load.audio('battery', 'sound/battery.mp3');
+        this.load.audio('checkp', 'sound/checkp.mp3');
 
-        // Oooh, fancy. A multi atlas is a texture atlas which has the textures spread
-        // across multiple png files, so as to keep their size small for use with
-        // lower resource devices (like mobile phones).
-        // kenny-particles.json internally has a list of the png files
-        // The multiatlas was created using TexturePacker and the Kenny
-        // Particle Pack asset pack.
+        // Multiatlas
         this.load.multiatlas("kenny-particles", "kenny-particles.json");
+        // Load Font
+        const preloadFont = document.createElement('span');
+        preloadFont.textContent = '.';
+        preloadFont.style.fontFamily = 'Minecraftia';
+        preloadFont.style.visibility = 'hidden';
+        document.body.appendChild(preloadFont);
+
     }
 
     create() {
@@ -71,8 +78,37 @@ class Load extends Phaser.Scene {
                 { frame: "tile_0023.png" }
             ],
         });
-         // ...and pass to the next Scene
-         this.scene.start("platformerScene");
+
+        // Coin anim
+        this.anims.create({
+            key: 'spin',
+            defaultTextureKey: "tilemap_sheet",
+            frames:
+            this.anims.generateFrameNumbers('tilemap_sheet', {
+                start: 151,
+                end: 152
+            }),
+            frameRate: 2,
+            repeat: -1
+        });
+
+        // Flag anim
+        this.anims.create({
+            key: 'flap',
+            defaultTextureKey: "tilemap_sheet",
+            frames:
+            this.anims.generateFrameNumbers('tilemap_sheet', {
+                start: 111,
+                end: 112
+            }),
+            frameRate: 3,
+            repeat: -1
+        });
+
+        // Wait for font, then change scene
+        document.fonts.ready.then(() => {
+            this.scene.start('platformerScene');
+        });
     }
 
     // Never get here since a new scene is started in create()
