@@ -189,6 +189,9 @@ class Platformer extends Phaser.Scene {
         // Debug key listener (assigned to F key)
         this.input.keyboard.on('keydown-F', () => {
             this.physics.world.drawDebug = !this.physics.world.drawDebug;
+            if (!this.physics.world.debugGraphic) {
+                this.physics.world.createDebugGraphic();
+            }
             this.physics.world.debugGraphic.clear();
         }, this);
 
