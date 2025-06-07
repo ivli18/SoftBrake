@@ -13,11 +13,11 @@ class Platformer extends Phaser.Scene {
         this.SCALE = 3;
         this.maxSpeed = 250;
 
-        
         this.minVis = 0.6;
         this.maxVis = 1.1;
         this.onGround = false;
-
+        
+        this.deathCount = 0;
         this.startTime = 0;
         this.score = 0;
         this.batteries = 0;
@@ -169,7 +169,7 @@ class Platformer extends Phaser.Scene {
         });
         this.physics.add.overlap(my.sprite.player, this.batteryGroup, (obj1, obj2) => {
             obj2.destroy();
-            this.score += 2500;
+            this.score += 1250;
             this.sound.play('battery', { volume: 0.3 });
             this.minVis += 0.2;
             this.maxVis += 0.25;
@@ -236,28 +236,41 @@ class Platformer extends Phaser.Scene {
         this.scoreText = this.add.text(480, 300, 'Score: 0', {
             fontSize: '10px',
             fill: '#ffffff',
-            backgroundColor: '#000000aa',
             padding: {x: 8, y: 4},
-            resolution: 2,
+            resolution: 3,
+            fontFamily: 'Minecraftia'
+        }).setScrollFactor(0).setDepth(999);
+
+        this.deathText = this.add.text(480, 320, 'Deaths: 0', {
+            fontSize: '10px',
+            fill: '#ffffff',
+            padding: {x: 8, y: 4},
+            resolution: 3,
             fontFamily: 'Minecraftia'
         }).setScrollFactor(0).setDepth(999);
 
         this.timerText = this.add.text(720, 300, "0.00", {
             fontSize: '20px',
             color: '#ffffff',
-            backgroundColor: '#000000aa',
             padding: {x: 8, y: 4 },
-            resolution: 2,
+            resolution: 3,
             fontFamily: 'Minecraftia'
         }).setScrollFactor(0).setDepth(999).setOrigin(0.5, 0);
     }
 
     update() {
-        // Update Score
+        // UI Updates
         this.scoreText.setText('Score: ' + this.score);
-
         let elapsed = (this.time.now - this.startTime) / 1000;
-        this.timerText.setText(elapsed.toFixed(2));
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+
+        const formatted = 
+            String(minutes).padStart(2, '0') + ":" + 
+            seconds.toFixed(2).padStart(5, '0'); // 5 = "12.34"
+
+        this.timerText.setText(formatted);
+        this.deathText.setText('Deaths: ' + this.deathCount);
 
 
         // Handle Death-Case
@@ -275,6 +288,7 @@ class Platformer extends Phaser.Scene {
                     my.sprite.player.setPosition(this.lastCheckpoint.x, this.lastCheckpoint.y);
                     my.sprite.player.setAlpha(1);
                     my.sprite.player.body.enable = true;
+                    this.deathCount += 1;
                     this.death = false;
                     this.respawnTimer = null;
                 });
