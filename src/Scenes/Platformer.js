@@ -17,14 +17,15 @@ class Platformer extends Phaser.Scene {
         this.maxVis = 1.1;
         this.onGround = false;
         
-        this.deathCount = 0;
+        
         this.startTime = 0;
         this.score = 0;
         this.batteries = 0;
+        this.coinCount = 0;
+        this.deathCount = 0;
     }
 
-    create() {
-        
+    create() { 
         this.startTime = this.time.now;
         this.bgSound = this.sound.add('bg', {
             loop: true,
@@ -144,6 +145,7 @@ class Platformer extends Phaser.Scene {
         this.physics.add.overlap(my.sprite.player, this.coinGroup, (obj1, obj2) => {
             obj2.destroy(); // remove coin on overlap
             this.score += 50;
+            this.coinCount += 1;
             this.sound.play('coin', { volume: 0.3 });
         });
         
@@ -159,7 +161,13 @@ class Platformer extends Phaser.Scene {
         // GOAL COLLISION
         this.physics.add.overlap(my.sprite.player, this.goalGroup, (obj1, obj2) => {
             let timeTaken = ((this.time.now - this.startTime) / 1000).toFixed(2);
-            this.scene.start('WinScene', { time: timeTaken, points: this.score });
+            this.scene.start('WinScene', {
+                time: timeTaken,
+                points: this.score,
+                batteries: this.batteries,
+                coins: this.coinCount,
+                deaths: this.deathCount
+            });
         });
 
         // SPIKE COLLISION
@@ -238,8 +246,8 @@ class Platformer extends Phaser.Scene {
             fill: '#ffffff',
             padding: {x: 8, y: 4},
             resolution: 3,
-            fontFamily: 'Minecraftia'
-        }).setScrollFactor(0).setDepth(999);
+            fontFamily: 'Minecraftia',
+        }).setScrollFactor(0).setDepth(999).setOrigin(0);
 
         this.deathText = this.add.text(480, 320, 'Deaths: 0', {
             fontSize: '10px',
@@ -256,15 +264,30 @@ class Platformer extends Phaser.Scene {
             resolution: 3,
             fontFamily: 'Minecraftia'
         }).setScrollFactor(0).setDepth(999).setOrigin(0.5, 0);
+
+        this.batteryIcon = this.add.image(487, 340, 'battery')
+            .setOrigin(0)
+            .setScale(0.025)
+            .setScrollFactor(0)
+            .setDepth(999);
+        this.batteryText = this.add.text(510, 345, "x0", {
+            fontSize: '10px',
+            color: '#ffffff',
+            padding: {x: 8, y: 4 },
+            resolution: 3,
+            fontFamily: 'Minecraftia'
+        }).setScrollFactor(0).setDepth(999).setOrigin(0.5, 0);
+
     }
 
     update() {
         // UI Updates
         this.scoreText.setText('Score: ' + this.score);
+        this.batteryText.setText('x' + this.batteries);
+
         let elapsed = (this.time.now - this.startTime) / 1000;
         const minutes = Math.floor(elapsed / 60);
         const seconds = elapsed % 60;
-
         const formatted = 
             String(minutes).padStart(2, '0') + ":" + 
             seconds.toFixed(2).padStart(5, '0'); // 5 = "12.34"
@@ -289,6 +312,7 @@ class Platformer extends Phaser.Scene {
                     my.sprite.player.setAlpha(1);
                     my.sprite.player.body.enable = true;
                     this.deathCount += 1;
+                    this.score -= 10;
                     this.death = false;
                     this.respawnTimer = null;
                 });
